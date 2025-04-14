@@ -6,8 +6,6 @@ stages:
 variables:
   IMAGE_NAME: fastapi-todo-demo
   DOCKER_USERNAME: syinx
-  VERSION: "${CI_COMMIT_TAG:-latest}"
-  # VERSION: ${CI_COMMIT_SHORT_SHA}
   DOCKER_IMAGE: docker.io/$DOCKER_USERNAME/$IMAGE_NAME
 
 # Job untuk test
@@ -18,16 +16,13 @@ test:
     - shared
   script:
     # install uv
+    - VERSION="${CI_COMMIT_TAG:-latest}"
+    - echo "VERSION=$VERSION"
     - pip install uv
     - uv sync --all-groups --all-extras
     - pwd
     - ls -la
-    - echo "CI_COMMIT_TAG=$CI_COMMIT_TAG"
-    - echo "VERSION=$VERSION"
-    - VERSION="${CI_COMMIT_TAG:-latest}"
-    - echo "VERSION=$VERSION"
     - make test
-    - echo "Tests completed"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
