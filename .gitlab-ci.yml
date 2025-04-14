@@ -39,6 +39,9 @@ build_and_push:
     - shared
   services:
     - docker:dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   script:
     # Install make
     - apk add --no-cache make
