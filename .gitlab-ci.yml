@@ -43,6 +43,7 @@ build_and_push:
     - apk add --no-cache make
     - apk add --no-cache curl
     - apk add --no-cache git
+    - docker --version
     - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - make docker-login
     - make build
@@ -64,17 +65,19 @@ deploy_to_gcp:
     # Setup SSH key
     - mkdir -p ~/.ssh
     - echo "$GCP_SSH_PRIVATE_KEY_B64" | base64 -d > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
+    - sudo chmod 600 ~/.ssh/id_rsa
     # Tambahkan VM ke known_hosts
     - ssh-keyscan -H $GCP_VM_IP >> ~/.ssh/known_hosts
     # SSH ke VM dan deploy
-    - ssh $GCP_SSH_USER@$GCP_VM_IP << 'EOF'
+    - echo "Deploying to GCP VM..."
+    - ssh -i ~/.ssh/id_rsa $GCP_SSH_USER@$GCP_VM_IP << 'EOF'
         echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin
         docker pull $DOCKER_IMAGE:$VERSION
         docker stop $IMAGE_NAME || true
         docker rm $IMAGE_NAME || true
         docker run -d --name $IMAGE_NAME -p 80:$(APP_PORT) $DOCKER_IMAGE:$VERSION
         EOF
+    - echo "Deployment completed."
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
       when: always
