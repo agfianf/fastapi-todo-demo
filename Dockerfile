@@ -2,7 +2,7 @@ FROM python:3.12-slim
 
 ARG VERSION=latest
 ENV VERSION=${VERSION}
-
+RUN echo "Building version ${VERSION}"
 
 WORKDIR /code
 

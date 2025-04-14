@@ -29,7 +29,7 @@ help:
 
 # Build the Docker image
 build:
-	docker build -t $(IMAGE_NAME):$(VERSION) .
+	docker build --build-arg VERSION=$(VERSION) -t $(IMAGE_NAME):$(VERSION) .
 
 # Run the Docker container
 run:
