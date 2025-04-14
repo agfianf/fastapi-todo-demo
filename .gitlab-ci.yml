@@ -1,7 +1,7 @@
 stages:
-  - test
-  - build
-  - deploy
+  - test    # Tahap pengujian
+  - build   # Tahap pembangunan image Docker
+  - deploy  # Tahap deployment
 
 variables:
   IMAGE_NAME: fastapi-todo-demo
@@ -17,14 +17,12 @@ test:
   tags:
     - shared
   script:
-    # install uv
-    - VERSION="${CI_COMMIT_TAG:-latest}"
-    - echo "VERSION=$VERSION"
-    - pip install uv
-    - uv sync --all-groups --all-extras
-    - pwd
-    - ls -la
-    - make test
+    - VERSION="${CI_COMMIT_TAG:-latest}"  # Menentukan versi, default: latest
+    - echo "Version=$VERSION"
+    - pip install uv  # Meng-install dependency yang diperlukan
+    - uv sync --all-groups --all-extras  # Sinkronisasi dependensi
+    - ls -la  # Menampilkan daftar file untuk debugging
+    - make test  # Menjalankan unit test
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
@@ -43,16 +41,14 @@ build_and_push:
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
   before_script:
-      - echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
+    - echo "$DOCKER_PASSWORD" | docker login --username $DOCKER_USERNAME --password-stdin
   script:
-    # Install make
-    - apk add --no-cache make
-    - docker --version
-    - VERSION="${CI_COMMIT_TAG:-latest}"
-    - export VERSION=$VERSION
-    - echo "VERSION=$VERSION"
-    - make build
-    - make docker-push
+    - apk add --no-cache make  # Meng-install make jika belum terinstall
+    - docker --version  # Mengecek versi docker
+    - VERSION="${CI_COMMIT_TAG:-latest}"  # Tentukan versi image
+    - echo "Version=$VERSION"
+    - make build  # Membangun image Docker
+    - make docker-push  # Push image ke registry
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
       when: always
@@ -65,28 +61,21 @@ deploy_to_gcp:
   tags:
     - shared
   before_script:
-    - apk update && apk add openssh-client
-    # Setup SSH agent
-    - eval $(ssh-agent -s)
-
+    - apk update && apk add openssh-client  # Meng-install SSH client
+    - echo "Memulai SSH agent untuk koneksi secure" 
+    - eval $(ssh-agent -s)  # Inisiasi SSH agent
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - echo "$SSH_PRIVATE_KEY"
-    - echo "something happened $GCP_VM_IP"
-
-    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-    - cat ~/.ssh/id_rsa
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa  # Menyimpan private key untuk autentikasi
     - chmod 600 ~/.ssh/id_rsa
-
-    - echo "$KNOWN_HOSTS"
-    - echo "$KNOWN_HOSTS" >> ~/.ssh/known_hosts
-    - cat ~/.ssh/known_hosts
-
+    - echo "$KNOWN_HOSTS" >> ~/.ssh/known_hosts  # Menambahkan known hosts agar SSH tahu server tepercaya
+    - cat ~/.ssh/known_hosts  # Debug: Tampilkan known hosts
   script:
     - VERSION="${CI_COMMIT_TAG:-latest}"
-    - export VERSION=$VERSION
-    - echo "VERSION=$VERSION"
-    - echo "Deploying to GCP VM $GCP_VM_IP"
+    - echo "Version=$VERSION"
+    - echo "Mulai deployment ke GCP VM dengan IP=$GCP_VM_IP"
+    # Penjelasan: SSH (Secure Shell) digunakan untuk membuat koneksi yang terenkripsi ke VM,
+    # sehingga perintah deployment bisa berjalan dengan aman.
     - |
       ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $GCP_SSH_USER@$GCP_VM_IP "
         echo 'Pulling latest Docker image...'
@@ -96,9 +85,9 @@ deploy_to_gcp:
         docker stop '$IMAGE_NAME' || true
         docker rm '$IMAGE_NAME' || true
         docker run -d --name '$IMAGE_NAME' -p 80:'$APP_PORT' '$DOCKER_IMAGE:$VERSION'
-        echo 'Deployment to $GCP_VM_IP completed.'
+        echo 'Deployment selesai di VM http://$GCP_VM_IP:80'
       "
-    - echo "Deployment completed."
+    - echo "Deployment selesai."
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
       when: always

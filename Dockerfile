@@ -1,5 +1,9 @@
 FROM python:3.12-slim
 
+ARG VERSION=latest
+ENV VERSION=${VERSION}
+
+
 WORKDIR /code
 
 # Install dependencies
