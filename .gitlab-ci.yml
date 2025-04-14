@@ -1,0 +1,76 @@
+stages:
+  - test
+  - build
+  - deploy
+
+variables:
+  IMAGE_NAME: fastapi-todo-demo
+  DOCKER_USERNAME: syinx
+  DOCKER_IMAGE: docker.io/$DOCKER_USERNAME/$IMAGE_NAME
+
+# Job untuk test
+test:
+  stage: test
+  image: python:3.12
+  tags:
+    - shared
+  script:
+    # install uv
+    - VERSION="${CI_COMMIT_TAG:-latest}"
+    - echo "VERSION=$VERSION"
+    - pip install uv
+    - uv sync --all-groups --all-extras
+    - pwd
+    - ls -la
+    - make test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ && $CI_COMMIT_BRANCH == "main"'
+      when: always
+    - when: never
+
+# Job untuk build dan push Docker image
+build_and_push:
+  stage: build
+  image: docker:24.0
+  tags:
+    - shared
+  services:
+    - docker:dind
+  script:
+    - make docker-login
+    - make build
+    - make docker-push
+  rules:
+  - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ && $CI_COMMIT_BRANCH == "main"'
+    when: always
+  - when: never
+
+# Job untuk deploy ke VM GCP
+deploy_to_gcp:
+  stage: deploy
+  image: alpine:latest
+  tags:
+    - shared
+  script:
+    # Install SSH
+    - apk add openssh-client
+    # Setup SSH key
+    - mkdir -p ~/.ssh
+    - echo "$GCP_SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    # Tambahkan VM ke known_hosts
+    - ssh-keyscan -H $GCP_VM_IP >> ~/.ssh/known_hosts
+    # SSH ke VM dan deploy
+    - ssh $GCP_SSH_USER@$GCP_VM_IP << 'EOF'
+        echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin
+        docker pull $DOCKER_IMAGE:$VERSION
+        docker stop $IMAGE_NAME || true
+        docker rm $IMAGE_NAME || true
+        docker run -d --name $IMAGE_NAME -p 80:$(APP_PORT) $DOCKER_IMAGE:$VERSION
+        EOF
+  rules:
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ && $CI_COMMIT_BRANCH == "main"'
+      when: always
+    - when: never

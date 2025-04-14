@@ -86,10 +86,10 @@ test = [
 
 [package.metadata]
 requires-dist = [
-    { name = "fastapi", specifier = ">=0.115.12" },
+    { name = "fastapi", specifier = "==0.115.12" },
     { name = "httpx", marker = "extra == 'test'", specifier = ">=0.27.0" },
     { name = "pytest", marker = "extra == 'test'", specifier = ">=8.0.0" },
-    { name = "uvicorn", specifier = ">=0.34.1" },
+    { name = "uvicorn", specifier = "==0.34.1" },
 ]
 provides-extras = ["test"]
 

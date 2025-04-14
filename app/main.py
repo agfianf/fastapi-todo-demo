@@ -4,10 +4,19 @@ from typing import Dict, List, Optional
 from uuid import uuid4
 import socket
 import platform
+import os
 from fastapi.responses import RedirectResponse
 
 
-app = FastAPI(title="Todo API", description="A simple Todo API using FastAPI and dictionary storage")
+# Get version from environment variable, default to "dev" if not set
+VERSION = os.environ.get("VERSION", "dev")
+
+app = FastAPI(
+    title="Todo API", 
+    description="A simple Todo API using FastAPI and dictionary storage",
+    version=str(VERSION),
+    
+)
 
 # In-memory storage for todos
 todos: Dict[str, dict] = {}
@@ -23,6 +32,7 @@ class Todo(TodoCreate):
 class HostInfo(BaseModel):
     hostname: str
     platform: str
+    version: str
 
 @app.get("/", status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 async def root():
@@ -32,8 +42,8 @@ async def root():
 async def get_hostname():
     hostname = socket.gethostname()
     system_platform = platform.system()
-    print(f"Hostname: {hostname}, Platform: {system_platform}")
-    return {"hostname": hostname, "platform": system_platform}
+    print(f"Hostname: {hostname}, Platform: {system_platform}, Version: {VERSION}")
+    return {"hostname": hostname, "platform": system_platform, "version": VERSION}
 
 @app.post("/todos", status_code=status.HTTP_201_CREATED, response_model=Todo)
 async def create_todo(todo: TodoCreate):

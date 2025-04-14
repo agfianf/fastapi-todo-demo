@@ -46,7 +46,7 @@ clean: stop
 
 # Run tests
 test:
-	pytest
+	uv run pytest
 
 # Start the development server with hot reload
 dev:
