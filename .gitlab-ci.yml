@@ -72,8 +72,9 @@ deploy_to_gcp:
 
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
+    - echo $SSH_PRIVATE_KEY
     - echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config;
-    - cat "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+    - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
     - ssh-keyscan -H 35.198.250.23 >> ~/.ssh/known_hosts
 
