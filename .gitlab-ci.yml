@@ -46,6 +46,7 @@ build_and_push:
     - apk add --no-cache make  # Meng-install make jika belum terinstall
     - docker --version  # Mengecek versi docker
     - VERSION="${CI_COMMIT_TAG:-latest}"  # Tentukan versi image
+    - export VERSION=$VERSION
     - echo "Version=$VERSION"
     - make build  # Membangun image Docker
     - make docker-push  # Push image ke registry
