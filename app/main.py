@@ -14,7 +14,8 @@ VERSION = os.environ.get("VERSION", "dev")
 app = FastAPI(
     title="Todo API", 
     description="A simple Todo API using FastAPI and dictionary storage",
-    version=VERSION
+    version=str(VERSION),
+    
 )
 
 # In-memory storage for todos

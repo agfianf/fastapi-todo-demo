@@ -19,7 +19,11 @@ test:
     # install uv
     - pip install uv
     - uv sync --all-groups --all-extras
+    - pwd
+    - ls -la
+    - echo VERSION=$VERSION
     - make test
+    - echo "Tests completed"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       when: always
