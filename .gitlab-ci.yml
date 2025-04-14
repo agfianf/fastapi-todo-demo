@@ -43,9 +43,9 @@ build_and_push:
     - make build
     - make docker-push
   rules:
-  - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ && $CI_COMMIT_BRANCH == "main"'
-    when: always
-  - when: never
+    - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ && $CI_COMMIT_BRANCH == "main"'
+      when: always
+    - when: never
 
 # Job untuk deploy ke VM GCP
 deploy_to_gcp:
