@@ -6,7 +6,7 @@ stages:
 variables:
   IMAGE_NAME: fastapi-todo-demo
   DOCKER_USERNAME: syinx
-  VERSION: ${CI_COMMIT_TAG:-latest}
+  VERSION: "${CI_COMMIT_TAG:-latest}"
   DOCKER_IMAGE: docker.io/$DOCKER_USERNAME/$IMAGE_NAME
 
 # Job untuk test
@@ -21,7 +21,8 @@ test:
     - uv sync --all-groups --all-extras
     - pwd
     - ls -la
-    - echo VERSION=$VERSION
+    - echo "CI_COMMIT_TAG=$CI_COMMIT_TAG"
+    - echo "VERSION=$VERSION"
     - make test
     - echo "Tests completed"
   rules:
