@@ -72,15 +72,11 @@ deploy_to_gcp:
 
     - mkdir -p ~/.ssh
     - chmod 700 ~/.ssh
-    - cat "$SSH_PRIVATE_KEY"
-    - echo "$SSH_PRIVATE_KEY"
-    - ls -lah "$SSH_PRIVATE_KEY"
-    - cat "$SSH_PRIVATE_KEY" | head -n 5
-    - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_rsa
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config;
+    - cat "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
-    - eval "$(ssh-agent -s)"
-    - ssh-add ~/.ssh/id_rsa
-    - ssh-keyscan -H "$GCP_VM_IP" >> ~/.ssh/known_hosts
+    - ssh-keyscan -H 35.198.250.23 >> ~/.ssh/known_hosts
+
   script:
     - VERSION="${CI_COMMIT_TAG:-latest}"
     - export VERSION=$VERSION
