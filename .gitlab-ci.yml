@@ -68,6 +68,7 @@ deploy_to_gcp:
     # Setup SSH key
     - mkdir -p ~/.ssh
     - cat $GCP_SSH_PRIVATE_KEY_B64 | base64 -d > ~/.ssh/id_rsa
+    - cat $GCP_SSH_PRIVATE_KEY_B64 
     - chmod 600 ~/.ssh/id_rsa
     # Tambahkan VM ke known_hosts
     - ssh-keyscan -H $GCP_VM_IP >> ~/.ssh/known_hosts
