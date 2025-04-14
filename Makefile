@@ -56,6 +56,7 @@ dev:
 docker-login:
 	@echo "Logging in to Docker registry..."
 	@if [ -z "$(DOCKER_PASSWORD)" ]; then \
+		echo "DOCKER_PASSWORD is not set. Please set it in your environment or .env file."; \
 		docker login $(DOCKER_REGISTRY) -u $(DOCKER_USERNAME); \
 	else \
 		echo "$(DOCKER_PASSWORD)" | docker login $(DOCKER_REGISTRY) -u $(DOCKER_USERNAME) --password-stdin; \
