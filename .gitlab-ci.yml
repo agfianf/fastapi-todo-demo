@@ -8,6 +8,7 @@ variables:
   DOCKER_USERNAME: syinx
   DOCKER_IMAGE: docker.io/$DOCKER_USERNAME/$IMAGE_NAME
   DOCKER_REGISTRY: docker.io
+  APP_PORT: 8000
 
 # Job untuk test
 test:
@@ -94,7 +95,7 @@ deploy_to_gcp:
         docker pull '$DOCKER_IMAGE:$VERSION'
         docker stop '$IMAGE_NAME' || true
         docker rm '$IMAGE_NAME' || true
-        docker run -d --name '$IMAGE_NAME' -p 80:"$APP_PORT" "$DOCKER_IMAGE:$VERSION"
+        docker run -d --name '$IMAGE_NAME' -p 80:'$APP_PORT' '$DOCKER_IMAGE:$VERSION'
         echo 'Deployment to $GCP_VM_IP completed.'
       "
     - echo "Deployment completed."
