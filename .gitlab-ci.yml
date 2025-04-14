@@ -33,7 +33,7 @@ test:
 # Job untuk build dan push Docker image
 build_and_push:
   stage: build
-  image: docker:24.0
+  image: docker:24.0-cli
   tags:
     - shared
   services:
