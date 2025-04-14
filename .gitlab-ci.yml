@@ -87,7 +87,7 @@ deploy_to_gcp:
     - echo "VERSION=$VERSION"
     - echo "Deploying to GCP VM $GCP_VM_IP"
     - |
-      ssh -i ~/.ssh/id_rsa $GCP_SSH_USER@$GCP_VM_IP "
+      ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no $GCP_SSH_USER@$GCP_VM_IP "
         echo 'Pulling latest Docker image...'
         VERSION='${CI_COMMIT_TAG:-latest}'
         echo '$DOCKER_PASSWORD' | docker login -u '$DOCKER_USERNAME' --password-stdin
