@@ -49,6 +49,9 @@ build_and_push:
     - apk add --no-cache curl
     - apk add --no-cache git
     - docker --version
+    - VERSION="${CI_COMMIT_TAG:-latest}"
+    - export VERSION=$VERSION
+    - echo "VERSION=$VERSION"
     - make build
     - make docker-push
   rules:
@@ -62,27 +65,26 @@ deploy_to_gcp:
   image: alpine:latest
   tags:
     - shared
-  script:
-    # Install SSH
-    - apk add openssh-client
-    # Setup SSH key
+  before_script:
+    - apk add --no-cache openssh-client bash
     - mkdir -p ~/.ssh
-    - cat $GCP_SSH_PRIVATE_KEY_B64 | base64 -d > ~/.ssh/id_rsa
-    - cat $GCP_SSH_PRIVATE_KEY_B64 
+    - chmod 700 ~/.ssh
+    - cp "$SSH_PRIVATE_KEY" ~/.ssh/id_rsa
     - chmod 600 ~/.ssh/id_rsa
-    # Tambahkan VM ke known_hosts
-    - ssh-keyscan -H $GCP_VM_IP >> ~/.ssh/known_hosts
-    # SSH ke VM dan deploy
-    - echo "Deploying to GCP VM $GCP_VM_IP to $GCP_SSH_USER"
-    - ssh -i ~/.ssh/id_rsa $GCP_SSH_USER@$GCP_VM_IP << 'EOF'
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan -H "$GCP_VM_IP" >> ~/.ssh/known_hosts
+  script:
+    - echo "Deploying to GCP VM $GCP_VM_IP"
+    - ssh $GCP_SSH_USER@$GCP_VM_IP << 'EOF'
         echo "Pulling latest Docker image..."
         VERSION="${CI_COMMIT_TAG:-latest}"
-        echo "$DOCKER_PASSWORD" | docker login -u $DOCKER_USERNAME --password-stdin
-        docker pull $DOCKER_IMAGE:$VERSION
-        docker stop $IMAGE_NAME || true
-        docker rm $IMAGE_NAME || true
-        docker run -d --name $IMAGE_NAME -p 80:$(APP_PORT) $DOCKER_IMAGE:$VERSION
-        EOF
+        echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        docker pull "$DOCKER_IMAGE:$VERSION"
+        docker stop "$IMAGE_NAME" || true
+        docker rm "$IMAGE_NAME" || true
+        docker run -d --name "$IMAGE_NAME" -p 80:"$APP_PORT" "$DOCKER_IMAGE:$VERSION"
+      EOF
     - echo "Deployment completed."
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/'
