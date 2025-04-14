@@ -13,6 +13,8 @@ variables:
 test:
   stage: test
   image: python:3.12
+  tags:
+    - shared
   script:
     # install uv
     - pip install uv
@@ -29,6 +31,8 @@ test:
 build_and_push:
   stage: build
   image: docker:24.0
+  tags:
+    - shared
   services:
     - docker:dind
   script:
@@ -44,6 +48,8 @@ build_and_push:
 deploy_to_gcp:
   stage: deploy
   image: alpine:latest
+  tags:
+    - shared
   script:
     # Install SSH
     - apk add openssh-client
@@ -59,7 +65,7 @@ deploy_to_gcp:
         docker pull $DOCKER_IMAGE:$VERSION
         docker stop $IMAGE_NAME || true
         docker rm $IMAGE_NAME || true
-        docker run -d --name $IMAGE_NAME -p $(HOST_PORT):$(APP_PORT) $DOCKER_IMAGE:$VERSION
+        docker run -d --name $IMAGE_NAME -p 80:$(APP_PORT) $DOCKER_IMAGE:$VERSION
         EOF
   rules:
     - if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/ && $CI_COMMIT_BRANCH == "main"'
