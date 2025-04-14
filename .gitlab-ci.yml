@@ -44,7 +44,6 @@ build_and_push:
     - apk add --no-cache curl
     - apk add --no-cache git
     - docker --version
-    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - make docker-login
     - make build
     - make docker-push
@@ -65,7 +64,7 @@ deploy_to_gcp:
     # Setup SSH key
     - mkdir -p ~/.ssh
     - echo "$GCP_SSH_PRIVATE_KEY_B64" | base64 -d > ~/.ssh/id_rsa
-    - sudo chmod 600 ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
     # Tambahkan VM ke known_hosts
     - ssh-keyscan -H $GCP_VM_IP >> ~/.ssh/known_hosts
     # SSH ke VM dan deploy
