@@ -43,6 +43,7 @@ build_and_push:
     - apk add --no-cache make
     - apk add --no-cache curl
     - apk add --no-cache git
+    - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
     - make docker-login
     - make build
     - make docker-push
