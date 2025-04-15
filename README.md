@@ -51,7 +51,8 @@ FastAPI automatically generates interactive API documentation:
 
 ## API Endpoints
 
-- `GET /` - Root endpoint, API health check
+- `GET /` - Root will redirect to the API documentation `/docs`
+- `GET /hostname` - Get the hostname of the server
 - `POST /todos` - Create a new todo
 - `GET /todos` - List all todos
 - `GET /todos/{todo_id}` - Get a specific todo
@@ -75,5 +76,6 @@ fastapi-demo/
 ├── tests/
 │   └── test_main.py  # Tests for the API
 ├── pyproject.toml    # Project configuration
+├── Makefile          # Makefile for build and test commands
 └── README.md         # This file
 ```
