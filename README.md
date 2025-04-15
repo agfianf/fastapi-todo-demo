@@ -75,6 +75,9 @@ fastapi-demo/
 │   └── main.py       # FastAPI application
 ├── tests/
 │   └── test_main.py  # Tests for the API
+├── Dockerfile        # Dockerfile for building the image
+├── .gitignore
+├── .gitlab-ci.yml    # GitLab CI/CD pipeline configuration
 ├── pyproject.toml    # Project configuration
 ├── Makefile          # Makefile for build and test commands
 └── README.md         # This file
