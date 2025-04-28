@@ -50,7 +50,7 @@ test:
 
 # Start the development server with hot reload
 dev:
-	uvicorn app.main:app --reload --host 0.0.0.0 --port $(APP_PORT)
+	uv run uvicorn app.main:app --reload --host 0.0.0.0 --port $(APP_PORT)
 
 # Login to Docker registry
 docker-login:
